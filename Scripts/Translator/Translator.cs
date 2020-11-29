@@ -16,20 +16,20 @@ namespace FanLang
 			table = new Dictionary<string, List<TranslateHashData>>();
 			for (int i = 0; i < sheet.TranslateHashes.Count; i++)
 			{
-				string input = sheet.TranslateHashes[i].Input;
-				if (IsEmpty(input) || (!allowEmptyHashes && IsEmpty(sheet.TranslateHashes[i].Output)))
+				TranslateHashData hash = sheet.TranslateHashes[i];
+				if (!hash.Enabled || IsEmpty(hash.Input) || (!allowEmptyHashes && IsEmpty(hash.Output)))
 				{
 					continue;
 				}
 
-				if (!table.ContainsKey(input))
+				if (!table.ContainsKey(hash.Input))
 				{
-					table.Add(input, new List<TranslateHashData>());
+					table.Add(hash.Input, new List<TranslateHashData>());
 				}
-				table[input].Add(sheet.TranslateHashes[i]);
+				table[hash.Input].Add(sheet.TranslateHashes[i]);
 
 				// We store the longest available hash to get the max-check-length.
-				if (input.Length > longestHash)
+				if (hash.Input.Length > longestHash)
 				{
 					longestHash = sheet.TranslateHashes[i].Input.Length;
 				}
@@ -56,8 +56,12 @@ namespace FanLang
 					string selection = text.Substring(index, checkLength);
 					if (table.ContainsKey(selection.ToLower()))
 					{
-						output = TransferCases(selection, GetOutput(selection.ToLower(), prefix, suffix).ToLower());
-						break;
+						string rawOutput = GetOutput(selection.ToLower(), prefix, suffix);
+						if (!string.IsNullOrEmpty(rawOutput))
+						{
+							output = TransferCases(selection, rawOutput.ToLower());
+							break;
+						}
 					}
 
 					checkLength--;
@@ -102,17 +106,35 @@ namespace FanLang
 		private string GetOutput(string input, bool prefix, bool suffix)
 		{
 			var hashes = table[input];
-			if (prefix && hashes.Any((x) => x.HashType == TranslateHashType.Prefix))
+			if (prefix && suffix && HasHash(TranslateHashType.Word))
 			{
-				return hashes.First((x) => x.HashType == TranslateHashType.Prefix).Output;
+				return GetHash(TranslateHashType.Word);
 			}
-			else if (suffix && hashes.Any((x) => x.HashType == TranslateHashType.Suffix))
+			else if (prefix && !suffix && HasHash(TranslateHashType.Prefix))
 			{
-				return hashes.First((x) => x.HashType == TranslateHashType.Suffix).Output;
+				return GetHash(TranslateHashType.Prefix);
+			}
+			else if (!prefix && suffix && HasHash(TranslateHashType.Suffix))
+			{
+				return GetHash(TranslateHashType.Suffix);
+			}
+			else if (HasHash(TranslateHashType.Default))
+			{
+				return GetHash(TranslateHashType.Default);
 			}
 			else
 			{
-				return hashes.First((x) => x.HashType == TranslateHashType.Default).Output;
+				return null;
+			}
+
+			bool HasHash(TranslateHashType type)
+			{
+				return hashes.Any((x) => x.HashType == type);
+			}
+
+			string GetHash(TranslateHashType type)
+			{
+				return hashes.First((x) => x.HashType == type).Output;
 			}
 		}
 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 
 namespace FanLang
 {
@@ -14,7 +15,7 @@ namespace FanLang
 		[SerializeField] private TMP_InputField outputField;
 
 		private TranslateData translateData;
-		private Translator[] translators;
+		private List<Translator> translators = new List<Translator>();
 
 		protected void OnEnable()
 		{
@@ -35,10 +36,13 @@ namespace FanLang
 
 		public void Reload()
 		{
-			translators = new Translator[translateData.TranslateSheets.Count];
-			for (int i = 0; i < translators.Length; i++)
+			translators.Clear();
+			foreach (TranslateSheetData sheet in translateData.TranslateSheets)
 			{
-				translators[i] = new Translator(translateData.TranslateSheets[i], AllowEmptyHashes);
+				if (sheet.Enabled)
+				{
+					translators.Add(new Translator(sheet, AllowEmptyHashes));
+				}
 			}
 			Translate();
 		}
@@ -51,9 +55,9 @@ namespace FanLang
 		private string Translate(string input)
 		{
 			string output = input;
-			for (int i = 0; i < translators.Length; i++)
+			foreach (Translator translator in translators)
 			{
-				output = translators[i].Translate(output);
+				output = translator.Translate(output);
 			}
 
 			return output;

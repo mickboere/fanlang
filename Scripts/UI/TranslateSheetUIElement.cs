@@ -11,6 +11,7 @@ namespace FanLang
 		public event Action<object> TranslateDataChangedEvent;
 		public event Action<TranslateSheetData> RequestDeleteEvent;
 
+		[SerializeField] private Toggle enabledToggle;
 		[SerializeField] private TMP_InputField sheetNameField;
 		[SerializeField] private Button deleteSheetButton;
 		[SerializeField] private Button addHashButton;
@@ -18,7 +19,7 @@ namespace FanLang
 		[SerializeField] private TranslateHashUIElement translateHashUIElementPrefab;
 
 		private TranslateSheetData sheetData;
-		private InputFieldTextDataBinding sheetNameBinding;
+		private List<IDisposable> disposables = new List<IDisposable>();
 		private Dictionary<TranslateHashData, TranslateHashUIElement> spawnedHashes = new Dictionary<TranslateHashData, TranslateHashUIElement>();
 
 		public void Initialize(TranslateSheetData sheetData)
@@ -26,7 +27,8 @@ namespace FanLang
 			CleanUp();
 			this.sheetData = sheetData;
 
-			sheetNameBinding = new InputFieldTextDataBinding(sheetNameField, () => sheetData.SheetName, (string t) => sheetData.SheetName = t);
+			disposables.Add(new ToggleBoolDataBinding(enabledToggle, () => sheetData.Enabled, delegate (bool v) { sheetData.Enabled = v; TranslateDataChangedEvent?.Invoke(this); }));
+			disposables.Add(new InputFieldTextDataBinding(sheetNameField, () => sheetData.Name, (string t) => sheetData.Name = t));
 
 			deleteSheetButton.onClick.AddListener(OnDeleteSheetButtonPressed);
 			addHashButton.onClick.AddListener(OnAddHashButton);
@@ -44,7 +46,7 @@ namespace FanLang
 
 		private void OnAddHashButton()
 		{
-			TranslateHashData hash = new TranslateHashData("", "", TranslateHashType.Default);
+			TranslateHashData hash = new TranslateHashData();
 			sheetData.TranslateHashes.Add(hash);
 			AddTranslateHashUIElement(hash);
 		}
@@ -69,10 +71,11 @@ namespace FanLang
 
 		private void CleanUp()
 		{
-			if (sheetNameBinding != null)
+			foreach (IDisposable disposable in disposables)
 			{
-				sheetNameBinding.Dispose();
+				disposable.Dispose();
 			}
+			disposables.Clear();
 
 			foreach (KeyValuePair<TranslateHashData, TranslateHashUIElement> translateHashElement in spawnedHashes)
 			{

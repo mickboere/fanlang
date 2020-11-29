@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FanLang
 {
@@ -10,40 +12,50 @@ namespace FanLang
 		public event Action<object> TranslateDataChangedEvent;
 		public event Action<TranslateHashData> RequestDeleteEvent;
 
+		[SerializeField] private Toggle enabledToggle;
 		[SerializeField] private TMP_InputField inputField;
 		[SerializeField] private TMP_InputField outputField;
 		[SerializeField] private TMP_Dropdown hashTypeDropdown;
 		[SerializeField] private Button deleteHashButton;
 
 		private TranslateHashData hashData;
-		private InputFieldTextDataBinding inputBinding;
-		private InputFieldTextDataBinding outputBinding;
+		private List<IDisposable> disposables = new List<IDisposable>();
 
 		public void Initialize(TranslateHashData hashData)
 		{
 			CleanUp();
 			this.hashData = hashData;
 
-			inputBinding = new InputFieldTextDataBinding(
+			disposables.Add(new ToggleBoolDataBinding(
+				enabledToggle,
+				() => hashData.Enabled,
+				delegate (bool v)
+				{
+					hashData.Enabled = v;
+					OnDataChange();
+				}));
+
+			disposables.Add(new InputFieldTextDataBinding(
 				inputField,
 				() => hashData.Input,
 				delegate (string t)
 				{
 					hashData.Input = t;
 					OnDataChange();
-				});
+				}));
 
-			outputBinding = new InputFieldTextDataBinding(
+			disposables.Add(new InputFieldTextDataBinding(
 				outputField,
 				() => hashData.Output,
 				delegate (string t)
 				{
 					hashData.Output = t;
 					OnDataChange();
-				});
+				}));
 
 			deleteHashButton.onClick.AddListener(OnDeleteHashButtonPressed);
 
+			hashTypeDropdown.options = new List<TMP_Dropdown.OptionData>(((TranslateHashType[])Enum.GetValues(typeof(TranslateHashType))).Select((x) => new TMP_Dropdown.OptionData(x.ToString())));
 			hashTypeDropdown.value = (int)hashData.HashType;
 			hashTypeDropdown.onValueChanged.AddListener(OnHashTypeChanged);
 		}
@@ -71,14 +83,12 @@ namespace FanLang
 
 		private void CleanUp()
 		{
-			if (inputBinding != null)
+			foreach (IDisposable disposable in disposables)
 			{
-				inputBinding.Dispose();
+				disposable.Dispose();
 			}
-			if (outputBinding != null)
-			{
-				outputBinding.Dispose();
-			}
+			disposables.Clear();
+
 			deleteHashButton.onClick.RemoveListener(OnDeleteHashButtonPressed);
 			hashTypeDropdown.onValueChanged.RemoveListener(OnHashTypeChanged);
 		}

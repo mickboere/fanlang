@@ -12,18 +12,28 @@ namespace FanLang
 	[Serializable]
 	public class TranslateSheetData : ICloneable
 	{
-		[SerializeField] public string SheetName;
+		[SerializeField] public bool Enabled;
+		[SerializeField] public string Name;
 		[SerializeField] public List<TranslateHashData> TranslateHashes;
 
-		public TranslateSheetData(string sheetName, List<TranslateHashData> translateHashes)
+		public TranslateSheetData()
 		{
-			SheetName = sheetName;
+			Enabled = true;
+			Name = "New Sheet";
+			TranslateHashes = new List<TranslateHashData>();
+			TranslateHashes.Add(new TranslateHashData());
+		}
+
+		public TranslateSheetData(bool enabled, string name, List<TranslateHashData> translateHashes)
+		{
+			Enabled = enabled;
+			Name = name;
 			TranslateHashes = translateHashes;
 		}
 
 		public object Clone()
 		{
-			return new TranslateSheetData(SheetName, TranslateHashes.Select((x) => (TranslateHashData)x.Clone()).ToList());
+			return new TranslateSheetData(Enabled, Name, TranslateHashes.Select((x) => (TranslateHashData)x.Clone()).ToList());
 		}
 	}
 }

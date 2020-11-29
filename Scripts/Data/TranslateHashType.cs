@@ -4,6 +4,7 @@
 	{
 		Default = 0,
 		Prefix = 1,
-		Suffix = 2
+		Suffix = 2,
+		Word = 3
 	}
 }

@@ -14,31 +14,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   translateData:
     TranslateSheets:
-    - SheetName: Base Sheet
+    - Enabled: 1
+      Name: New Sheet
       TranslateHashes:
-      - Input: d
+      - Enabled: 1
+        Input: d
         Output: m
         HashType: 0
-      - Input: a
+      - Enabled: 1
+        Input: a
         Output: o
         HashType: 0
-      - Input: k
+      - Enabled: 1
+        Input: k
         Output: r
         HashType: 0
-      - Input: n
+      - Enabled: 1
+        Input: n
         Output: d
         HashType: 0
-      - Input: ess
+      - Enabled: 1
+        Input: ess
         Output: or
         HashType: 0
-      - Input: th
+      - Enabled: 1
+        Input: th
         Output: l
         HashType: 0
-      - Input: e
+      - Enabled: 1
+        Input: e
         Output: a
         HashType: 0
-    - SheetName: Cleanup 1
+      - Enabled: 1
+        Input: ed
+        Output: k
+        HashType: 0
+      - Enabled: 1
+        Input: in
+        Output: i
+        HashType: 0
+    - Enabled: 1
+      Name: New Sheet
       TranslateHashes:
-      - Input: rr
+      - Enabled: 1
+        Input: rr
         Output: r
         HashType: 0

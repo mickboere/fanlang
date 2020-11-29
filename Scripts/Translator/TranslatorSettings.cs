@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace FanLang
 {
 	[RequireComponent(typeof(TranslatorBehaviour))]
+	[RequireComponent(typeof(ConfirmationPopupBehaviour))]
 	public class TranslatorSettings : MonoBehaviour
 	{
 		[SerializeField] private string dataPath;
@@ -30,16 +31,18 @@ namespace FanLang
 		[SerializeField] private Button addTranslateSheetButton;
 
 		private TranslatorBehaviour translatorBehaviour;
+		private ConfirmationPopupBehaviour confirmation;
 
 		private TranslateData translateData;
 		private string projectName = "";
-		private bool changes;
+		private bool dirty;
 
 		private Dictionary<TranslateSheetData, TranslateSheetUIElement> spawnedSheets = new Dictionary<TranslateSheetData, TranslateSheetUIElement>();
 
 		protected void OnEnable()
 		{
 			translatorBehaviour = GetComponent<TranslatorBehaviour>();
+			confirmation = GetComponent<ConfirmationPopupBehaviour>();
 			Subscribe();
 		}
 
@@ -51,6 +54,18 @@ namespace FanLang
 		protected void Start()
 		{
 			Load();
+		}
+
+		protected void Update()
+		{
+			saveButton.interactable = dirty;
+			undoAllButton.interactable = dirty;
+		}
+
+		private void SetDirty(bool dirty)
+		{
+			this.dirty = dirty;
+			UpdateProjectName();
 		}
 
 		private void Load()
@@ -70,7 +85,7 @@ namespace FanLang
 				LoadData(CreateDefaultProject());
 			}
 
-			UpdateProjectName();
+			SetDirty(false);
 
 			alwaysUpdateToggle.SetIsOnWithoutNotify(translatorBehaviour.AlwaysUpdate);
 			updateTranslationButtonContainer.SetActive(!translatorBehaviour.AlwaysUpdate);
@@ -86,8 +101,7 @@ namespace FanLang
 
 		private void OnTranslateDataChanged(object data)
 		{
-			changes = true;
-			UpdateProjectName();
+			SetDirty(true);
 
 			if (translatorBehaviour.AlwaysUpdate)
 			{
@@ -131,7 +145,7 @@ namespace FanLang
 		{
 			translatorBehaviour.AlwaysUpdate = value;
 			updateTranslationButtonContainer.SetActive(!translatorBehaviour.AlwaysUpdate);
-
+			translatorBehaviour.Reload();
 		}
 
 		private void OnAllowEmptyHashesToggleValueChanged(bool value)
@@ -151,6 +165,7 @@ namespace FanLang
 			{
 #if UNITY_EDITOR
 				dataObject.OverwriteTranslateData(translateData);
+				SetDirty(true);
 #else
 				OnSaveAsButton();
 #endif
@@ -169,8 +184,13 @@ namespace FanLang
 
 		private void OnUndoAllButton()
 		{
-			// By re-loading we clear all of our changes.
-			Load();
+			confirmation.Popup("Please Confirm", "Are you sure you want to undo all unsaved changes?", delegate (bool result)
+			{
+				if (result)
+				{
+					Load();
+				}
+			});
 		}
 		#endregion
 
@@ -211,19 +231,24 @@ namespace FanLang
 
 		private void OnAddTranslateSheetEvent()
 		{
-			List<TranslateHashData> hashes = new List<TranslateHashData>();
-			hashes.Add(new TranslateHashData("", "", TranslateHashType.Default));
-			TranslateSheetData sheetData = new TranslateSheetData("New Sheet", hashes);
+			TranslateSheetData sheetData = new TranslateSheetData();
 			translateData.TranslateSheets.Add(sheetData);
 			AddTranslateSheetUIElement(sheetData);
 		}
 
 		private void OnRequestDeleteTranslateSheetEvent(TranslateSheetData sheetData)
 		{
-			// perform confirmation check, then if true:
-			Destroy(spawnedSheets[sheetData].gameObject);
-			spawnedSheets.Remove(sheetData);
-			translateData.TranslateSheets.Remove(sheetData);
+			confirmation.Popup("Please Confirm", "Are you sure you want to delete this translate sheet?", delegate (bool result)
+			{
+				if (result)
+				{
+					Destroy(spawnedSheets[sheetData].gameObject);
+					spawnedSheets.Remove(sheetData);
+					translateData.TranslateSheets.Remove(sheetData);
+					translatorBehaviour.Reload();
+					SetDirty(true);
+				}
+			});
 		}
 		#endregion
 
@@ -231,15 +256,13 @@ namespace FanLang
 		{
 			projectName = "New FanLang Project";
 			List<TranslateSheetData> sheets = new List<TranslateSheetData>();
-			List<TranslateHashData> hashes = new List<TranslateHashData>();
-			hashes.Add(new TranslateHashData("", "", TranslateHashType.Default));
-			sheets.Add(new TranslateSheetData("New Sheet", hashes));
+			sheets.Add(new TranslateSheetData());
 			return new TranslateData(sheets);
 		}
 
 		private void UpdateProjectName()
 		{
-			projectNameField.text = $"{projectName}{(changes ? "*" : "")}";
+			projectNameField.text = $"{projectName}{(dirty ? "*" : "")}";
 		}
 	}
 }

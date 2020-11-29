@@ -10,12 +10,22 @@ namespace FanLang
 	[Serializable]
 	public class TranslateHashData : ICloneable
 	{
+		[SerializeField] public bool Enabled;
 		[SerializeField] public string Input;
 		[SerializeField] public string Output;
 		[SerializeField] public TranslateHashType HashType;
 
-		public TranslateHashData(string input, string output, TranslateHashType hashType)
+		public TranslateHashData()
 		{
+			Enabled = true;
+			Input = "";
+			Output = "";
+			HashType = TranslateHashType.Default;
+		}
+
+		public TranslateHashData(bool enabled, string input, string output, TranslateHashType hashType)
+		{
+			Enabled = enabled;
 			Input = input;
 			Output = output;
 			HashType = hashType;
@@ -23,7 +33,7 @@ namespace FanLang
 
 		public object Clone()
 		{
-			return new TranslateHashData(Input, Output, HashType);
+			return new TranslateHashData(Enabled, Input, Output, HashType);
 		}
 	}
 }
