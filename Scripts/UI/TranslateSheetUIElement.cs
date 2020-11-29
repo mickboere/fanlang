@@ -8,7 +8,7 @@ namespace FanLang
 {
 	public class TranslateSheetUIElement : MonoBehaviour
 	{
-		public event Action TranslateDataChangedEvent;
+		public event Action<object> TranslateDataChangedEvent;
 		public event Action<TranslateSheetData> RequestDeleteEvent;
 
 		[SerializeField] private TMP_InputField sheetNameField;
@@ -44,12 +44,14 @@ namespace FanLang
 
 		private void OnAddHashButton()
 		{
-			AddTranslateHashUIElement(new TranslateHashData("", "", TranslateHashType.Default));
+			TranslateHashData hash = new TranslateHashData("", "", TranslateHashType.Default);
+			sheetData.TranslateHashes.Add(hash);
+			AddTranslateHashUIElement(hash);
 		}
 
-		private void OnTranslateHashDataChangedEvent()
+		private void OnTranslateHashDataChangedEvent(object hash)
 		{
-			TranslateDataChangedEvent?.Invoke();
+			TranslateDataChangedEvent?.Invoke(hash);
 		}
 
 		private void OnRequestDeleteTranslateHashEvent(TranslateHashData hashData)
@@ -57,7 +59,7 @@ namespace FanLang
 			Destroy(spawnedHashes[hashData].gameObject);
 			spawnedHashes.Remove(hashData);
 			sheetData.TranslateHashes.Remove(hashData);
-			TranslateDataChangedEvent?.Invoke();
+			TranslateDataChangedEvent?.Invoke(this);
 		}
 
 		private void OnDeleteSheetButtonPressed()
@@ -77,6 +79,7 @@ namespace FanLang
 				if (translateHashElement.Value != null)
 				{
 					translateHashElement.Value.TranslateDataChangedEvent -= OnTranslateHashDataChangedEvent;
+					translateHashElement.Value.RequestDeleteEvent -= OnRequestDeleteTranslateHashEvent;
 					GameObject.Destroy(translateHashElement.Value.gameObject);
 				}
 			}
@@ -91,6 +94,7 @@ namespace FanLang
 			element.Initialize(hashData);
 			spawnedHashes.Add(hashData, element);
 			element.TranslateDataChangedEvent += OnTranslateHashDataChangedEvent;
+			element.RequestDeleteEvent += OnRequestDeleteTranslateHashEvent;
 		}
 	}
 }

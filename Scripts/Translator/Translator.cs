@@ -10,13 +10,18 @@ namespace FanLang
 		private Dictionary<string, List<TranslateHashData>> table;
 		private int longestHash = 0;
 
-		public Translator(TranslateSheetData sheet)
+		public Translator(TranslateSheetData sheet, bool allowEmptyHashes)
 		{
 			// We convert the translate sheet to a dictionary for easy access.
 			table = new Dictionary<string, List<TranslateHashData>>();
 			for (int i = 0; i < sheet.TranslateHashes.Count; i++)
 			{
 				string input = sheet.TranslateHashes[i].Input;
+				if (IsEmpty(input) || (!allowEmptyHashes && IsEmpty(sheet.TranslateHashes[i].Output)))
+				{
+					continue;
+				}
+
 				if (!table.ContainsKey(input))
 				{
 					table.Add(input, new List<TranslateHashData>());
@@ -74,7 +79,7 @@ namespace FanLang
 
 		private string TransferCases(string from, string to)
 		{
-			if (string.IsNullOrEmpty(from))
+			if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to))
 			{
 				return to;
 			}
@@ -109,6 +114,11 @@ namespace FanLang
 			{
 				return hashes.First((x) => x.HashType == TranslateHashType.Default).Output;
 			}
+		}
+
+		private bool IsEmpty(string s)
+		{
+			return string.IsNullOrEmpty(s) || string.IsNullOrWhiteSpace(s);
 		}
 	}
 }

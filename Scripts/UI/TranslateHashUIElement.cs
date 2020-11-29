@@ -7,7 +7,7 @@ namespace FanLang
 {
 	public class TranslateHashUIElement : MonoBehaviour
 	{
-		public event Action TranslateDataChangedEvent;
+		public event Action<object> TranslateDataChangedEvent;
 		public event Action<TranslateHashData> RequestDeleteEvent;
 
 		[SerializeField] private TMP_InputField inputField;
@@ -30,7 +30,7 @@ namespace FanLang
 				delegate (string t)
 				{
 					hashData.Input = t;
-					TranslateDataChangedEvent?.Invoke();
+					OnDataChange();
 				});
 
 			outputBinding = new InputFieldTextDataBinding(
@@ -39,7 +39,7 @@ namespace FanLang
 				delegate (string t)
 				{
 					hashData.Output = t;
-					TranslateDataChangedEvent?.Invoke();
+					OnDataChange();
 				});
 
 			deleteHashButton.onClick.AddListener(OnDeleteHashButtonPressed);
@@ -53,6 +53,11 @@ namespace FanLang
 			CleanUp();
 		}
 
+		private void OnDataChange()
+		{
+			TranslateDataChangedEvent?.Invoke(this);
+		}
+
 		private void OnDeleteHashButtonPressed()
 		{
 			RequestDeleteEvent?.Invoke(hashData);
@@ -61,7 +66,7 @@ namespace FanLang
 		private void OnHashTypeChanged(int dropdownIndex)
 		{
 			hashData.HashType = (TranslateHashType)dropdownIndex;
-			TranslateDataChangedEvent?.Invoke();
+			OnDataChange();
 		}
 
 		private void CleanUp()
