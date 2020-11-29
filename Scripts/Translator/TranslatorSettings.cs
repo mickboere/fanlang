@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using SFB;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace FanLang
 {
@@ -58,7 +61,12 @@ namespace FanLang
 
 		protected void Update()
 		{
+#if UNITY_EDITOR
 			saveButton.interactable = dirty;
+#else
+			saveButton.interactable = dataObject == null && dirty;
+#endif
+
 			undoAllButton.interactable = dirty;
 		}
 
@@ -73,11 +81,11 @@ namespace FanLang
 			// First check if there is a dataPath, if there isn't check if there is a preset, then finally create a new project with default settings.
 			if (!string.IsNullOrEmpty(dataPath))
 			{
-				Debug.LogError("NOT SUPPORTED YET");
+				LoadFromPath(dataPath);
 			}
 			else if (dataObject != null)
 			{
-				projectName = dataObject.name;
+				UpdateProjectName(dataObject.name);
 				LoadData(dataObject.GetTranslateDataClone());
 			}
 			else
@@ -85,18 +93,43 @@ namespace FanLang
 				LoadData(CreateDefaultProject());
 			}
 
-			SetDirty(false);
-
 			alwaysUpdateToggle.SetIsOnWithoutNotify(translatorBehaviour.AlwaysUpdate);
 			updateTranslationButtonContainer.SetActive(!translatorBehaviour.AlwaysUpdate);
 			allowEmptyHashesToggle.SetIsOnWithoutNotify(translatorBehaviour.AllowEmptyHashes);
+		}
+
+		private void LoadFromPath(string path)
+		{
+			if (File.Exists(path))
+			{
+				dataPath = path;
+				dataObject = null;
+				UpdateProjectName(Path.GetFileName(path));
+				TranslateData data = JsonConvert.DeserializeObject<TranslateData>(File.ReadAllText(path));
+				LoadData(data);
+			}
+			else
+			{
+				Debug.LogError($"File at path '{path}' does not exist.");
+			}
 		}
 
 		private void LoadData(TranslateData translateData)
 		{
 			this.translateData = translateData;
 			translatorBehaviour.Load(translateData);
+			SetDirty(false);
 			RebuildUI();
+		}
+
+		private void SaveData(string path, bool reload)
+		{
+			string json = JsonConvert.SerializeObject(translateData, Formatting.Indented);
+			File.WriteAllText(path, json);
+			if (reload)
+			{
+				LoadFromPath(path);
+			}
 		}
 
 		private void OnTranslateDataChanged(object data)
@@ -156,30 +189,41 @@ namespace FanLang
 
 		private void OnLoadButton()
 		{
-
+			StandaloneFileBrowser.OpenFilePanelAsync("Select FanLangData file to load", "", "fld", false, delegate (string[] paths)
+			{
+				if (paths != null && paths.Length > 0)
+				{
+					LoadFromPath(paths[0]);
+				}
+			});
 		}
 
 		private void OnSaveButton()
 		{
+#if UNITY_EDITOR
 			if (dataObject != null)
 			{
-#if UNITY_EDITOR
 				dataObject.OverwriteTranslateData(translateData);
 				SetDirty(true);
-#else
-				OnSaveAsButton();
+			}
+			else
 #endif
+			if (!string.IsNullOrEmpty(dataPath))
+			{
+				SaveData(dataPath, false);
+			}
+			else
+			{
+				OnSaveAsButton();
 			}
 		}
 
 		private void OnSaveAsButton()
 		{
-			if (dataObject != null)
+			StandaloneFileBrowser.SaveFilePanelAsync("Save FanLangData file", "", projectName, "fld", delegate (string path)
 			{
-#if UNITY_EDITOR
-
-#endif
-			}
+				SaveData(path, true);
+			});
 		}
 
 		private void OnUndoAllButton()
@@ -254,14 +298,19 @@ namespace FanLang
 
 		private TranslateData CreateDefaultProject()
 		{
-			projectName = "New FanLang Project";
+			UpdateProjectName("New FanLang Project");
 			List<TranslateSheetData> sheets = new List<TranslateSheetData>();
 			sheets.Add(new TranslateSheetData());
 			return new TranslateData(sheets);
 		}
 
-		private void UpdateProjectName()
+		private void UpdateProjectName(string name = null)
 		{
+			if (string.IsNullOrEmpty(name))
+			{
+				projectName = name;
+			}
+
 			projectNameField.text = $"{projectName}{(dirty ? "*" : "")}";
 		}
 	}

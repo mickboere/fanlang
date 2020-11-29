@@ -12,9 +12,9 @@ namespace FanLang
 	[Serializable]
 	public class TranslateSheetData : ICloneable
 	{
-		[SerializeField] public bool Enabled;
-		[SerializeField] public string Name;
-		[SerializeField] public List<TranslateHashData> TranslateHashes;
+		public bool Enabled;
+		public string Name;
+		public List<TranslateHashData> TranslateHashes;
 
 		public TranslateSheetData()
 		{

@@ -10,10 +10,10 @@ namespace FanLang
 	[Serializable]
 	public class TranslateHashData : ICloneable
 	{
-		[SerializeField] public bool Enabled;
-		[SerializeField] public string Input;
-		[SerializeField] public string Output;
-		[SerializeField] public TranslateHashType HashType;
+		public bool Enabled;
+		public string Input;
+		public string Output;
+		public TranslateHashType HashType;
 
 		public TranslateHashData()
 		{

@@ -12,8 +12,7 @@ namespace FanLang
 	[Serializable]
 	public class TranslateData : ICloneable
 	{
-		//[SerializeField] public string LanguageName; <- For the name we just use the file name.
-		[SerializeField] public List<TranslateSheetData> TranslateSheets;
+		public List<TranslateSheetData> TranslateSheets;
 
 		public TranslateData(List<TranslateSheetData> translateSheets)
 		{
