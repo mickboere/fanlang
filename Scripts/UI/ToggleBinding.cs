@@ -3,13 +3,16 @@ using System;
 
 namespace FanLang
 {
-	public class ToggleBoolDataBinding : IDisposable
+	/// <summary>
+	/// <see cref="Toggle"/> binding that makes it easier to manage toggle value change subscriptions.
+	/// </summary>
+	public class ToggleBinding : IDisposable
 	{
 		private Toggle toggle;
 		private Func<bool> getData;
 		private Action<bool> setData;
 
-		public ToggleBoolDataBinding(Toggle toggle, Func<bool> getData, Action<bool> setData)
+		public ToggleBinding(Toggle toggle, Func<bool> getData, Action<bool> setData)
 		{
 			this.toggle = toggle;
 			this.getData = getData;

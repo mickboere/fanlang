@@ -10,6 +10,7 @@ namespace FanLang
 
 		public bool AlwaysUpdate { get; set; } = true;
 		public bool AllowEmptyHashes { get; set; } = false;
+		private string SaveKey => $"{INPUT_TEXT_PREF_KEY}_{translateData.ID}";
 
 		[SerializeField] private TMP_InputField inputField;
 		[SerializeField] private TMP_InputField outputField;
@@ -75,12 +76,12 @@ namespace FanLang
 
 		private void LoadInputText()
 		{
-			inputField.SetTextWithoutNotify(PlayerPrefs.GetString(INPUT_TEXT_PREF_KEY, ""));
+			inputField.SetTextWithoutNotify(PlayerPrefs.GetString(SaveKey, ""));
 		}
 
 		private void SaveInputText()
 		{
-			PlayerPrefs.SetString(INPUT_TEXT_PREF_KEY, inputField.text);
+			PlayerPrefs.SetString(SaveKey, inputField.text);
 			PlayerPrefs.Save();
 		}
 	}

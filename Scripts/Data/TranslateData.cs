@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace FanLang
 {
@@ -12,16 +11,23 @@ namespace FanLang
 	[Serializable]
 	public class TranslateData : ICloneable
 	{
+		public string ID;
+		public string Name;
+		public string Description;
+
 		public List<TranslateSheetData> TranslateSheets;
 
-		public TranslateData(List<TranslateSheetData> translateSheets)
+		public TranslateData(string id, string name, string description, List<TranslateSheetData> translateSheets)
 		{
+			ID = id;
+			Name = name;
+			Description = description;
 			TranslateSheets = translateSheets;
 		}
 
 		public object Clone()
 		{
-			return new TranslateData(TranslateSheets.Select((x) => (TranslateSheetData)x.Clone()).ToList());
+			return new TranslateData(ID, Name, Description, TranslateSheets.Select((x) => (TranslateSheetData)x.Clone()).ToList());
 		}
 	}
 }

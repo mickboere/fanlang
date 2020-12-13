@@ -2,16 +2,16 @@
 
 namespace FanLang
 {
-	[ExecuteInEditMode]
+	/// <summary>
+	/// Simple <see cref="MonoBehaviour"/> that forces the object to always be the last child in its parent's hierarchy.
+	/// </summary>
 	public class ForceLastChild : MonoBehaviour
 	{
-		[SerializeField] private bool editor;
-
 		protected void LateUpdate()
 		{
-			if (editor || Application.isPlaying)
+			if (transform.GetSiblingIndex() != transform.parent.childCount - 1)
 			{
-				transform.SetSiblingIndex(transform.parent.childCount);
+				transform.SetSiblingIndex(transform.parent.childCount - 1);
 			}
 		}
 	}

@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace FanLang
 {
+	/// <summary>
+	/// UI element handling the showing and updating of a <see cref="TranslateHashData"/>'s data.
+	/// </summary>
 	public class TranslateHashUIElement : MonoBehaviour
 	{
 		public event Action<object> TranslateDataChangedEvent;
@@ -19,14 +22,15 @@ namespace FanLang
 		[SerializeField] private Button deleteHashButton;
 
 		private TranslateHashData hashData;
-		private List<IDisposable> disposables = new List<IDisposable>();
+		private DisposableContainer disposables = new DisposableContainer();
 
 		public void Initialize(TranslateHashData hashData)
 		{
 			CleanUp();
 			this.hashData = hashData;
 
-			disposables.Add(new ToggleBoolDataBinding(
+			// Set up bindings.
+			disposables.Add(new ToggleBinding(
 				enabledToggle,
 				() => hashData.Enabled,
 				delegate (bool v)
@@ -34,8 +38,7 @@ namespace FanLang
 					hashData.Enabled = v;
 					OnDataChange();
 				}));
-
-			disposables.Add(new InputFieldTextDataBinding(
+			disposables.Add(new InputFieldBinding(
 				inputField,
 				() => hashData.Input,
 				delegate (string t)
@@ -43,8 +46,7 @@ namespace FanLang
 					hashData.Input = t;
 					OnDataChange();
 				}));
-
-			disposables.Add(new InputFieldTextDataBinding(
+			disposables.Add(new InputFieldBinding(
 				outputField,
 				() => hashData.Output,
 				delegate (string t)
@@ -52,9 +54,9 @@ namespace FanLang
 					hashData.Output = t;
 					OnDataChange();
 				}));
+			disposables.Add(new ButtonBinding(deleteHashButton, () => RequestDeleteEvent?.Invoke(hashData)));
 
-			deleteHashButton.onClick.AddListener(OnDeleteHashButtonPressed);
-
+			// Fill the dropdown with all available TranslateHashTypes.
 			hashTypeDropdown.options = new List<TMP_Dropdown.OptionData>(((TranslateHashType[])Enum.GetValues(typeof(TranslateHashType))).Select((x) => new TMP_Dropdown.OptionData(x.ToString())));
 			hashTypeDropdown.value = (int)hashData.HashType;
 			hashTypeDropdown.onValueChanged.AddListener(OnHashTypeChanged);
@@ -70,11 +72,6 @@ namespace FanLang
 			TranslateDataChangedEvent?.Invoke(this);
 		}
 
-		private void OnDeleteHashButtonPressed()
-		{
-			RequestDeleteEvent?.Invoke(hashData);
-		}
-
 		private void OnHashTypeChanged(int dropdownIndex)
 		{
 			hashData.HashType = (TranslateHashType)dropdownIndex;
@@ -83,13 +80,7 @@ namespace FanLang
 
 		private void CleanUp()
 		{
-			foreach (IDisposable disposable in disposables)
-			{
-				disposable.Dispose();
-			}
-			disposables.Clear();
-
-			deleteHashButton.onClick.RemoveListener(OnDeleteHashButtonPressed);
+			disposables.Dispose();
 			hashTypeDropdown.onValueChanged.RemoveListener(OnHashTypeChanged);
 		}
 	}

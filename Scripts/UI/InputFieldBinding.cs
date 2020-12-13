@@ -3,13 +3,16 @@ using System;
 
 namespace FanLang
 {
-	public class InputFieldTextDataBinding : IDisposable
+	/// <summary>
+	/// <see cref="TMP_InputField"/> binding that makes it easier to manage input data changes.
+	/// </summary>
+	public class InputFieldBinding : IDisposable
 	{
 		private TMP_InputField inputField;
 		private Func<string> getData;
 		private Action<string> setData;
 
-		public InputFieldTextDataBinding(TMP_InputField inputField, Func<string> getData, Action<string> setData)
+		public InputFieldBinding(TMP_InputField inputField, Func<string> getData, Action<string> setData)
 		{
 			this.inputField = inputField;
 			this.getData = getData;

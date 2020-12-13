@@ -2,10 +2,14 @@
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace FanLang
 {
+	/// <summary>
+	/// UI element handling the showing and updating of a <see cref="TranslateSheetData"/>'s data.
+	/// </summary>
 	public class TranslateSheetUIElement : MonoBehaviour
 	{
 		public event Action<object> TranslateDataChangedEvent;
@@ -17,9 +21,12 @@ namespace FanLang
 		[SerializeField] private Button addHashButton;
 		[SerializeField] private RectTransform hashParent;
 		[SerializeField] private TranslateHashUIElement translateHashUIElementPrefab;
+		[SerializeField] private Button sortByInputButton;
+		[SerializeField] private Button sortByOutputButton;
+		[SerializeField] private Button sortByHashTypeButton;
 
 		private TranslateSheetData sheetData;
-		private List<IDisposable> disposables = new List<IDisposable>();
+		private DisposableContainer disposables = new DisposableContainer();
 		private Dictionary<TranslateHashData, TranslateHashUIElement> spawnedHashes = new Dictionary<TranslateHashData, TranslateHashUIElement>();
 
 		public void Initialize(TranslateSheetData sheetData)
@@ -27,28 +34,22 @@ namespace FanLang
 			CleanUp();
 			this.sheetData = sheetData;
 
-			disposables.Add(new ToggleBoolDataBinding(enabledToggle, () => sheetData.Enabled, delegate (bool v) { sheetData.Enabled = v; TranslateDataChangedEvent?.Invoke(this); }));
-			disposables.Add(new InputFieldTextDataBinding(sheetNameField, () => sheetData.Name, (string t) => sheetData.Name = t));
+			// Set up bindings.
+			disposables.Add(new ToggleBinding(enabledToggle, () => sheetData.Enabled, delegate (bool v) { sheetData.Enabled = v; TranslateDataChangedEvent?.Invoke(this); }));
+			disposables.Add(new InputFieldBinding(sheetNameField, () => sheetData.Name, delegate (string t) { sheetData.Name = t; TranslateDataChangedEvent?.Invoke(this); }));
+			disposables.Add(new ButtonBinding(deleteSheetButton, () => RequestDeleteEvent?.Invoke(sheetData)));
+			disposables.Add(new ButtonBinding(addHashButton, delegate { TranslateHashData hash = new TranslateHashData(); sheetData.TranslateHashes.Add(hash); AddTranslateHashUIElement(hash); }));
+			disposables.Add(new ButtonBinding(sortByInputButton, delegate { List<TranslateHashData> orderedList = sheetData.TranslateHashes.OrderBy((x) => x.Input).ToList(); SortHashes(orderedList); }));
+			disposables.Add(new ButtonBinding(sortByOutputButton, delegate { List<TranslateHashData> orderedList = sheetData.TranslateHashes.OrderBy((x) => x.Output).ToList(); SortHashes(orderedList); }));
+			disposables.Add(new ButtonBinding(sortByHashTypeButton, delegate { List<TranslateHashData> orderedList = sheetData.TranslateHashes.OrderBy((x) => x.HashType.ToString()).ToList(); SortHashes(orderedList); }));
 
-			deleteSheetButton.onClick.AddListener(OnDeleteSheetButtonPressed);
-			addHashButton.onClick.AddListener(OnAddHashButton);
-
-			foreach (TranslateHashData hashData in sheetData.TranslateHashes)
-			{
-				AddTranslateHashUIElement(hashData);
-			}
+			// Create child translate hash UI elements.
+			RebuildUI();
 		}
 
 		protected void OnDestroy()
 		{
 			CleanUp();
-		}
-
-		private void OnAddHashButton()
-		{
-			TranslateHashData hash = new TranslateHashData();
-			sheetData.TranslateHashes.Add(hash);
-			AddTranslateHashUIElement(hash);
 		}
 
 		private void OnTranslateHashDataChangedEvent(object hash)
@@ -64,19 +65,23 @@ namespace FanLang
 			TranslateDataChangedEvent?.Invoke(this);
 		}
 
-		private void OnDeleteSheetButtonPressed()
-		{
-			RequestDeleteEvent?.Invoke(sheetData);
-		}
-
 		private void CleanUp()
 		{
-			foreach (IDisposable disposable in disposables)
-			{
-				disposable.Dispose();
-			}
-			disposables.Clear();
+			disposables.Dispose();
+			CleanUpUI();
+		}
 
+		private void RebuildUI()
+		{
+			CleanUpUI();
+			foreach (TranslateHashData hashData in sheetData.TranslateHashes)
+			{
+				AddTranslateHashUIElement(hashData);
+			}
+		}
+
+		private void CleanUpUI()
+		{
 			foreach (KeyValuePair<TranslateHashData, TranslateHashUIElement> translateHashElement in spawnedHashes)
 			{
 				if (translateHashElement.Value != null)
@@ -87,8 +92,6 @@ namespace FanLang
 				}
 			}
 			spawnedHashes.Clear();
-
-			deleteSheetButton.onClick.RemoveListener(OnDeleteSheetButtonPressed);
 		}
 
 		private void AddTranslateHashUIElement(TranslateHashData hashData)
@@ -98,6 +101,19 @@ namespace FanLang
 			spawnedHashes.Add(hashData, element);
 			element.TranslateDataChangedEvent += OnTranslateHashDataChangedEvent;
 			element.RequestDeleteEvent += OnRequestDeleteTranslateHashEvent;
+		}
+
+		private void SortHashes(List<TranslateHashData> orderedList)
+		{
+			// If it's already ordered, reverse the ordering to have a descending list instead of ascending.
+			if (sheetData.TranslateHashes.SequenceEqual(orderedList))
+			{
+				orderedList.Reverse();
+			}
+
+			sheetData.TranslateHashes = orderedList;
+			TranslateDataChangedEvent(this);
+			RebuildUI();
 		}
 	}
 }
