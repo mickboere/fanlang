@@ -22,6 +22,7 @@ namespace FanLang
 		[SerializeField] private Toggle allowEmptyHashesToggle;
 
 		[Header("Project Settings")]
+		[SerializeField] private Button newButton;
 		[SerializeField] private Button loadButton;
 		[SerializeField] private Button saveButton;
 		[SerializeField] private Button saveAsButton;
@@ -170,6 +171,7 @@ namespace FanLang
 			translateDataUI.TranslateDataChangedEvent += OnTranslateDataChanged;
 
 			// Set up UI bindings.
+
 			disposables.Add(new ToggleBinding(alwaysUpdateToggle, () => translatorBehaviour.AlwaysUpdate, delegate (bool value)
 			{
 				translatorBehaviour.AlwaysUpdate = value;
@@ -182,16 +184,63 @@ namespace FanLang
 				translatorBehaviour.Reload();
 			}));
 			disposables.Add(new ButtonBinding(updateTranslationButton, () => translatorBehaviour.Reload()));
+
+			// NEW
+			disposables.Add(new ButtonBinding(newButton, delegate
+			{
+				if(translateDataUI.Dirty)
+				{
+					confirmation.Popup("Please Confirm", "You have unsaved changes, are you sure you want to start a new project?", delegate (bool result)
+					{
+						if (result)
+						{
+							New();
+						}
+					});
+				}
+				else
+				{
+					New();
+				}
+
+				void New()
+				{
+					dataPath = "";
+					Load();
+				}
+			}));
+
+			// LOAD
 			disposables.Add(new ButtonBinding(loadButton, delegate
 			{
-				StandaloneFileBrowser.OpenFilePanelAsync("Select FanLangData file to load", "", "fld", false, delegate (string[] paths)
+				if (translateDataUI.Dirty)
 				{
-					if (paths != null && paths.Length > 0)
+					confirmation.Popup("Please Confirm", "You have unsaved changes, are you sure you want to load another project?", delegate (bool result)
 					{
-						LoadFromPath(paths[0]);
-					}
-				});
+						if (result)
+						{
+							Load();
+						}
+					});
+				}
+				else
+				{
+					Load();
+				}
+
+				void Load()
+				{
+					StandaloneFileBrowser.OpenFilePanelAsync("Select FanLangData file to load", "", "fld", false, delegate (string[] paths)
+					{
+						if (paths != null && paths.Length > 0)
+						{
+							LoadFromPath(paths[0]);
+						}
+					});
+				}
 			}));
+
+			// SAVE
 			disposables.Add(new ButtonBinding(saveButton, delegate
 			{
 				if (!string.IsNullOrEmpty(dataPath) && File.Exists(dataPath))
@@ -203,7 +252,11 @@ namespace FanLang
 					SaveAs();
 				}
 			}));
+
+			// SAVE AS
 			disposables.Add(new ButtonBinding(saveAsButton, SaveAs));
+
+			// UNDO ALL
 			disposables.Add(new ButtonBinding(undoAllButton, delegate
 			{
 				confirmation.Popup("Please Confirm", "Are you sure you want to undo all unsaved changes?", delegate (bool result)
