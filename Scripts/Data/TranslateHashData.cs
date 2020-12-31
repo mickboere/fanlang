@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace FanLang
 {
@@ -10,9 +9,24 @@ namespace FanLang
 	[Serializable]
 	public class TranslateHashData : ICloneable
 	{
+		/// <summary>
+		/// Should this hash be used?
+		/// </summary>
 		public bool Enabled;
+
+		/// <summary>
+		/// The input characters required to produce the defined output.
+		/// </summary>
 		public string Input;
+
+		/// <summary>
+		/// The ouput used to translate the defined input.
+		/// </summary>
 		public string Output;
+
+		/// <summary>
+		/// Defines the context in which the output is allowed to be used.
+		/// </summary>
 		public TranslateHashType HashType;
 
 		public TranslateHashData()

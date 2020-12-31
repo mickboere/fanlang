@@ -1,24 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 
 namespace FanLang
 {
+	/// <summary>
+	/// Base translator class, able to load a <see cref="TranslateSheetData"/> object which will
+	/// be used to translate input text passed through <see cref="Translate(string)"/>.
+	/// </summary>
 	public class Translator
 	{
 		private Dictionary<string, List<TranslateHashData>> table;
 		private int longestHash = 0;
 
-		public Translator(TranslateSheetData sheet, bool allowEmptyHashes)
+		/// <summary>
+		/// Creates a new <see cref="Translator"/> object.
+		/// </summary>
+		/// <param name="sheet">The data which will be used to translate the given input.</param>
+		public Translator(TranslateSheetData sheet)
 		{
 			// We convert the translate sheet to a dictionary for easy access.
 			table = new Dictionary<string, List<TranslateHashData>>();
 			for (int i = 0; i < sheet.TranslateHashes.Count; i++)
 			{
 				TranslateHashData hash = sheet.TranslateHashes[i];
-				if (!hash.Enabled || (!allowEmptyHashes && (IsEmpty(hash.Output) || IsEmpty(hash.Input))))
+				if (!hash.Enabled || IsEmpty(hash.Output) || IsEmpty(hash.Input))
 				{
 					continue;
 				}
@@ -74,7 +81,7 @@ namespace FanLang
 
 					// Is the current input a suffix? Check whether the next character is a letter.
 					RichSubstring(text, nextIndex, 1, out string nextCharacter, out _, out _);
-					bool suffix = nextIndex >= text.Length - 1 || (nextCharacter.Length > 0 && !char.IsLetter(nextCharacter[0]));
+					bool suffix = nextIndex >= text.Length || (nextCharacter.Length > 0 && !char.IsLetter(nextCharacter[0]));
 
 					if (table.ContainsKey(input.ToLower()))
 					{
@@ -108,9 +115,9 @@ namespace FanLang
 		/// <summary>
 		/// Tries to get the previous character while reading over HTML tags.
 		/// </summary>
-		private bool TryGetPreviousChar(string text, int startIndex, out char previousCharacter)
+		private bool TryGetPreviousChar(string text, int current, out char previousCharacter)
 		{
-			int index = startIndex;
+			int index = current - 1;
 			bool inTag = false;
 			while (index >= 0)
 			{
@@ -228,16 +235,16 @@ namespace FanLang
 
 		private string GetOutput(string input, bool prefix, bool suffix)
 		{
-			var hashes = table[input];
+			List<TranslateHashData> hashes = table[input];
 			if (prefix && suffix && HasHash(TranslateHashType.Word))
 			{
 				return GetHash(TranslateHashType.Word);
 			}
-			else if (prefix && !suffix && HasHash(TranslateHashType.Prefix))
+			else if (prefix && HasHash(TranslateHashType.Prefix))
 			{
 				return GetHash(TranslateHashType.Prefix);
 			}
-			else if (!prefix && suffix && HasHash(TranslateHashType.Suffix))
+			else if (suffix && HasHash(TranslateHashType.Suffix))
 			{
 				return GetHash(TranslateHashType.Suffix);
 			}

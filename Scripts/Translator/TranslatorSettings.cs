@@ -8,6 +8,9 @@ using System;
 
 namespace FanLang
 {
+	/// <summary>
+	/// <see cref="MonoBehaviour"/> handling all the visuals in the settings panel of the translator.
+	/// </summary>
 	[RequireComponent(typeof(TranslatorBehaviour))]
 	[RequireComponent(typeof(ConfirmationPopupBehaviour))]
 	public class TranslatorSettings : MonoBehaviour
@@ -19,7 +22,7 @@ namespace FanLang
 		[SerializeField] private Toggle alwaysUpdateToggle;
 		[SerializeField] private Button updateTranslationButton;
 		[SerializeField] private GameObject updateTranslationButtonContainer;
-		[SerializeField] private Toggle allowEmptyHashesToggle;
+		[SerializeField] private Toggle linkScrollingToggle;
 
 		[Header("Project Settings")]
 		[SerializeField] private Button newButton;
@@ -70,7 +73,7 @@ namespace FanLang
 
 			alwaysUpdateToggle.SetIsOnWithoutNotify(translatorBehaviour.AlwaysUpdate);
 			updateTranslationButtonContainer.SetActive(!translatorBehaviour.AlwaysUpdate);
-			allowEmptyHashesToggle.SetIsOnWithoutNotify(translatorBehaviour.AllowEmptyHashes);
+			linkScrollingToggle.SetIsOnWithoutNotify(translatorBehaviour.LinkScrollbars);
 		}
 
 		private void LoadFromPath(string path)
@@ -171,24 +174,22 @@ namespace FanLang
 			translateDataUI.TranslateDataChangedEvent += OnTranslateDataChanged;
 
 			// Set up UI bindings.
-
 			disposables.Add(new ToggleBinding(alwaysUpdateToggle, () => translatorBehaviour.AlwaysUpdate, delegate (bool value)
 			{
 				translatorBehaviour.AlwaysUpdate = value;
 				updateTranslationButtonContainer.SetActive(!translatorBehaviour.AlwaysUpdate);
 				translatorBehaviour.Reload();
 			}));
-			disposables.Add(new ToggleBinding(allowEmptyHashesToggle, () => translatorBehaviour.AllowEmptyHashes, delegate (bool value)
+			disposables.Add(new ToggleBinding(linkScrollingToggle, () => translatorBehaviour.LinkScrollbars, delegate (bool value)
 			{
-				translatorBehaviour.AllowEmptyHashes = value;
-				translatorBehaviour.Reload();
+				translatorBehaviour.LinkScrollbars = value;
 			}));
 			disposables.Add(new ButtonBinding(updateTranslationButton, () => translatorBehaviour.Reload()));
 
-			// NEW
+			// NEW button.
 			disposables.Add(new ButtonBinding(newButton, delegate
 			{
-				if(translateDataUI.Dirty)
+				if (translateDataUI.Dirty)
 				{
 					confirmation.Popup("Please Confirm", "You have unsaved changes, are you sure you want to start a new project?", delegate (bool result)
 					{
@@ -210,7 +211,7 @@ namespace FanLang
 				}
 			}));
 
-			// LOAD
+			// LOAD button.
 			disposables.Add(new ButtonBinding(loadButton, delegate
 			{
 				if (translateDataUI.Dirty)
@@ -240,7 +241,7 @@ namespace FanLang
 				}
 			}));
 
-			// SAVE
+			// SAVE button.
 			disposables.Add(new ButtonBinding(saveButton, delegate
 			{
 				if (!string.IsNullOrEmpty(dataPath) && File.Exists(dataPath))
@@ -253,10 +254,10 @@ namespace FanLang
 				}
 			}));
 
-			// SAVE AS
+			// SAVE AS button.
 			disposables.Add(new ButtonBinding(saveAsButton, SaveAs));
 
-			// UNDO ALL
+			// UNDO ALL button.
 			disposables.Add(new ButtonBinding(undoAllButton, delegate
 			{
 				confirmation.Popup("Please Confirm", "Are you sure you want to undo all unsaved changes?", delegate (bool result)

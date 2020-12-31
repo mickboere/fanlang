@@ -30,11 +30,20 @@ namespace FanLang
 		}
 
 		/// <summary>
+		/// Removes the <see cref="IDisposable"/> from the container but doesn't dispose it.
+		/// </summary>
+		/// <param name="disposable"></param>
+		public void Remove(IDisposable disposable)
+		{
+			disposables.Remove(disposable);
+		}
+
+		/// <summary>
 		/// Disposes of and removes <see cref="IDisposable"/> from container.
 		/// </summary>
 		public void Dispose(IDisposable disposable)
 		{
-			disposables.Remove(disposable);
+			Remove(disposable);
 			disposable.Dispose();
 		}
 

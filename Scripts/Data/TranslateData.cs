@@ -11,10 +11,24 @@ namespace FanLang
 	[Serializable]
 	public class TranslateData : ICloneable
 	{
+		/// <summary>
+		/// Unique ID (often of type <see cref="Guid"/>) used for identifying the language data.
+		/// </summary>
 		public string ID;
+
+		/// <summary>
+		/// The name of the language.
+		/// </summary>
 		public string Name;
+
+		/// <summary>
+		/// A description of the language. Could contain some lore, how to use it, etc.
+		/// </summary>
 		public string Description;
 
+		/// <summary>
+		/// The actual data used to translate our input.
+		/// </summary>
 		public List<TranslateSheetData> TranslateSheets;
 
 		public TranslateData(string id, string name, string description, List<TranslateSheetData> translateSheets)

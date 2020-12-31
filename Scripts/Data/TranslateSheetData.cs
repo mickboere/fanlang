@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace FanLang
 {
@@ -12,8 +11,19 @@ namespace FanLang
 	[Serializable]
 	public class TranslateSheetData : ICloneable
 	{
+		/// <summary>
+		/// Should the data in this sheet be used?
+		/// </summary>
 		public bool Enabled;
+
+		/// <summary>
+		/// The name of this sheet.
+		/// </summary>
 		public string Name;
+
+		/// <summary>
+		/// List containing the translate hashes which are used for the actual translation of the input.
+		/// </summary>
 		public List<TranslateHashData> TranslateHashes;
 
 		public TranslateSheetData()

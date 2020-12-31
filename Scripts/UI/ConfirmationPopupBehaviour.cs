@@ -5,6 +5,9 @@ using System;
 
 namespace FanLang
 {
+	/// <summary>
+	/// <see cref="MonoBehaviour"/> able to show a confirmation popup to the user and return the user response through a callback.
+	/// </summary>
 	public class ConfirmationPopupBehaviour : MonoBehaviour
 	{
 		[SerializeField] private GameObject blocker;
@@ -33,6 +36,14 @@ namespace FanLang
 			confirmButton.onClick.RemoveListener(OnConfirmButton);
 		}
 
+		/// <summary>
+		/// Shows the user a new confirmation popup.
+		/// </summary>
+		/// <param name="header">The header text of the popup.</param>
+		/// <param name="body">The body text of the popup.</param>
+		/// <param name="callback">The callback to be called once the user has confirmed his input. </param>
+		/// <param name="cancelText">The text to be displayed on the cancel button.</param>
+		/// <param name="confirmText">The text to be displayed on the confirm button.</param>
 		public void Popup(string header, string body, Action<bool> callback, string cancelText = "Cancel", string confirmText = "Confirm")
 		{
 			this.callback = callback;
@@ -46,6 +57,11 @@ namespace FanLang
 			popup.SetActive(true);
 		}
 
+		/// <summary>
+		/// Force the current popup to close.
+		/// </summary>
+		/// <param name="result">The result to pass into the callback passed into the last
+		/// open <see cref="Popup(string, string, Action{bool}, string, string)"/></param> call.
 		public void ClosePopup(bool result)
 		{
 			blocker.SetActive(false);

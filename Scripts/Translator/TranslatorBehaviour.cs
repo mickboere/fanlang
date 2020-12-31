@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
@@ -13,12 +14,14 @@ namespace FanLang
 		private const string INPUT_TEXT_PREF_KEY = "TranslatorInput";
 
 		public bool AlwaysUpdate { get; set; } = true;
-		public bool AllowEmptyHashes { get; set; } = false;
+		public bool LinkScrollbars { get; set; } = true;
 		private string SaveKey => $"{INPUT_TEXT_PREF_KEY}_{translateData.ID}";
 		private bool HasSelection => selectionStart != selectionEnd;
 
 		[SerializeField] private TMP_InputField inputField;
 		[SerializeField] private TMP_InputField outputField;
+		[SerializeField] private Scrollbar inputScrollbar;
+		[SerializeField] private Scrollbar outputScrollbar;
 		[SerializeField] private Color selectionColor;
 
 		private TranslateData translateData;
@@ -27,6 +30,7 @@ namespace FanLang
 		private int selectionStart;
 		private int selectionEnd;
 		private bool requiresTranslationUpdate;
+		private bool settingScrollbar;
 
 		protected void OnEnable()
 		{
@@ -34,6 +38,8 @@ namespace FanLang
 			inputField.onTextSelection.AddListener(OnInputSelectionChangedEvent);
 			inputField.onEndTextSelection.AddListener(OnInputSelectionChangedEvent);
 			inputField.onDeselect.AddListener(OnInputDeselect);
+			inputScrollbar.onValueChanged.AddListener(OnInputScrollbarValueChanged);
+			outputScrollbar.onValueChanged.AddListener(OnOutputScrollbarValueChanged);
 		}
 
 		protected void OnDisable()
@@ -42,6 +48,8 @@ namespace FanLang
 			inputField.onTextSelection.RemoveListener(OnInputSelectionChangedEvent);
 			inputField.onEndTextSelection.RemoveListener(OnInputSelectionChangedEvent);
 			inputField.onDeselect.RemoveListener(OnInputDeselect);
+			inputScrollbar.onValueChanged.RemoveListener(OnInputScrollbarValueChanged);
+			outputScrollbar.onValueChanged.RemoveListener(OnOutputScrollbarValueChanged);
 		}
 
 		protected void Update()
@@ -74,7 +82,7 @@ namespace FanLang
 			{
 				if (sheet.Enabled)
 				{
-					translators.Add(new Translator(sheet, AllowEmptyHashes));
+					translators.Add(new Translator(sheet));
 				}
 			}
 			Translate();
@@ -87,7 +95,7 @@ namespace FanLang
 		public void Translate()
 		{
 			string input = inputField.text;
-			if (HasSelection)
+			if (HasSelection && selectionEnd <= input.Length)
 			{
 				string markingTag = $"<mark=#{ColorUtility.ToHtmlStringRGBA(selectionColor)}>";
 				input = input.Insert(selectionStart, markingTag);
@@ -138,6 +146,26 @@ namespace FanLang
 			selectionStart = Mathf.Min(start, end);
 			selectionEnd = Mathf.Max(start, end);
 			requiresTranslationUpdate = true;
+		}
+
+		private void OnInputScrollbarValueChanged(float value)
+		{
+			if (!settingScrollbar && LinkScrollbars)
+			{
+				settingScrollbar = true; // To prevent looping callbacks
+				outputScrollbar.value = value;
+				settingScrollbar = false;
+			}
+		}
+
+		private void OnOutputScrollbarValueChanged(float value)
+		{
+			if (!settingScrollbar && LinkScrollbars)
+			{
+				settingScrollbar = true; // To prevent looping callbacks
+				inputScrollbar.value = value;
+				settingScrollbar = false;
+			}
 		}
 
 		private void LoadInputText()
