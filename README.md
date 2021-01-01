@@ -12,6 +12,8 @@ A tool for creating fictional languages by reading input text and replacing its 
 You, if you are into worldbuilding and the like but are too lazy to figure out how to create proper languages.
 Hell, even if you aren't into worldbuilding this software could probably be used for many other things than just creating languages. You could turn it into an UWU generator, replacing all the R's and L's with W's. You could turn it into any type of generator you want as long as it's possible to reach your desired result through reading and replacing strings of characters.
 
+**The beauty of FanLang is that you don't have to make up complex grammar and lingual rules, since your input language already contains all the necessary logics.**
+
 ## How does it work?
 
 Being a fan of simple things, I decided to to keep this application as simple as possible. FanLang operates on a simple read and replace principle. Character by character, the software tries to find a match from a list of input hashes. Should a matching input be found, we write away the corresponding output to our final translation. If no matching hash is found, we keep the original input.
