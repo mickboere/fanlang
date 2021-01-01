@@ -2,7 +2,7 @@
 
 A tool for creating fictional languages by reading input text and replacing its characters through a data set.
 
-<iframe src="https://drive.google.com/file/d/1VhChOMin1iPtGV04RFSvrNoS-62AToKv/preview" width="640" height="480"></iframe>
+![](https://drive.google.com/uc?export=view&id=1VhChOMin1iPtGV04RFSvrNoS-62AToKv)
 
 > Example project demonstrating how I go about creating languages. Download the example project [HERE](https://drive.google.com/file/d/1afVMiwYk5kExp4PT5wBZzKlSC8fi9DKt/view?usp=sharing).
 > Note that the example project does not contain the example input, since input is saved in player prefs (per system).
