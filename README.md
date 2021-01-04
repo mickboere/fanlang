@@ -4,7 +4,7 @@ A tool for creating fictional languages by reading input text and replacing its 
 
 [Quick video demonstration of everything below can be found here](https://www.youtube.com/watch?v=Vk4Ewopi_K4)
 
-![](https://drive.google.com/uc?export=view&id=1VhChOMin1iPtGV04RFSvrNoS-62AToKv)
+![](https://mickboere.com/wp-content/uploads/2021/01/ExampleLanguageScreenshot.png)
 
 > Example project demonstrating how I go about creating languages. Download the example project [HERE](https://drive.google.com/file/d/1afVMiwYk5kExp4PT5wBZzKlSC8fi9DKt/view?usp=sharing).
 > Note that the example project does not contain the example input, since input is saved in player prefs (per system).
