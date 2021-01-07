@@ -69,6 +69,7 @@ Or, since it's open source, if anyone else has time to add them ;)
 This tool was created in Unity 3D (C#) for no other reason than that I'm very comfortable with Unity and didn't feel like figuring out Windows Forms. But since this project is open source, if you're willing to recreate the UI it should be very easy to convert it to whatever software you like since I decoupled the UI, data and functionality as much as possible.
 
 To use this repo in a Unity project, you can simply add it as a submodule to your project repo.
+Do note that you're required to add the Newtonsoft.Json package to your project. To do this simply go to the Unity Package Manager and add the following URL as package: [https://github.com/JamesNK/Newtonsoft.Json.git](https://github.com/JamesNK/Newtonsoft.Json.git)
 
 ## FAQish
 
