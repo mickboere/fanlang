@@ -1,6 +1,6 @@
 # FanLang
 
-A tool for creating fictional languages by reading input text and replacing its characters through a data set.
+Cyphering software for creating fictional languages; read input text and replace it using a configurable data set.
 
 [Quick video demonstration of everything below can be found here](https://www.youtube.com/watch?v=Vk4Ewopi_K4)
 
@@ -55,43 +55,39 @@ The **order of priority** in terms of replacing is:
 A list of "planned" features that are by no means actually planned to be in the application some specific day but are rather nice-to-haves in case I ever have time to add them.
 Or, since it's open source, if anyone else has time to add them ;)
 
-- Multi threaded translation. (easy)
-- Highlighting of hashes depending on similarity when hovering over an input or output field. (normal)
-- Highlighting of hashes within the input and output when hovering over a hash. (hard)
+- Dropdown options as flags to enable or disable hash types (medium effort)
+- Add dropdown option for interfix; require letter before ánd after (low effort)
+- Improve UPPER CASING logic by checking neighboring characters. (low effort)
+- Multi threaded translation (medium effort)
+- Highlighting of hashes in sidebar depending on similarity when hovering over an input or output field. (medium effort)
+- Highlighting of hashes within the input and output when hovering over a hash. (higher effort)
 
 ## Known Issues
 
 - Saving a new project will clear the input text, presumably because the project ID changes. (low prio)
-- User is able to insert '<' and '>' unless when typing at the end of the input. The user should never be able to enter these characters since it could mess with the reading functionality. Either that, or the reader should be able to handle those characters while still being able to apply the < mark > tags used for highlighting the selected text.
+- User is able to insert '<' and '>' unless when typing at the end of the input. The user should never be able to enter these characters since it could mess with the reading functionality. Either that, or the reader should be able to handle those characters while still being able to apply the < mark > tags used for highlighting the text.
 
 ## Open Source
 
-This tool was created in Unity 3D (C#) for no other reason than that I'm very comfortable with Unity and didn't feel like figuring out Windows Forms. But since this project is open source, if you're willing to recreate the UI it should be very easy to convert it to whatever software you like since I decoupled the UI, data and functionality as much as possible.
+This tool was created in Unity 3D (C#) for no other reason than that I'm very comfortable with Unity and didn't feel like figuring out Windows Forms. But since this project is open source, if you're willing to recreate the UI it should be pretty easy to convert it to whatever software you like since I decoupled the UI, data and functionality as much as possible.
 
 To use this repo in a Unity project, you can simply add it as a submodule to your project repo.
 Do note that you're required to add the Newtonsoft.Json package to your project. To do this simply go to the Unity Package Manager and add the following URL as package: [https://github.com/JamesNK/Newtonsoft.Json.git](https://github.com/JamesNK/Newtonsoft.Json.git)
 
 ## FAQish
 
-> I found this issue.
+Issues
 
-Great! Please report it and I'll see if I can fix it anytime soon.
+> Please report it and I'll see if I can fix it anytime soon.
 
-> I don't like the UI.
+Dislikes
 
-Feel free to change it.
+> It's open source, feel free to grab it and do with it whatever you please.
+If you think your changes would be a valuable to the project, please open a pull request!
 
-> I'm missing feature X.
+Suggestions
 
-Feel free to create it and open a pull request.
-
-> I have the most amazing idea for a new feature!
-
-Awesome! Feel free to create it and open a pull request.
-
-> I'm missing feature X but I'm not a programmer.
-
-Feel free to request it, I can put it on the "planned" features list but I can't promise it will ever be made.
+> Feel free to leave a message or create it yourself and open a pull request. I may put it on the "planned" features list but I can't promise it'll ever be implemented.
 
 ## License
 
@@ -118,5 +114,6 @@ Feel free to request it, I can put it on the "planned" features list but I can't
 > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+### Additional credit
 Includes the [UnityStandaloneFileBrowser](https://github.com/gkngkc/UnityStandaloneFileBrowser).
 
