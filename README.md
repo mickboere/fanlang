@@ -61,6 +61,7 @@ Or, since it's open source, if anyone else has time to add them ;)
 - Multi threaded translation (medium effort)
 - Highlighting of hashes in sidebar depending on similarity when hovering over an input or output field. (medium effort)
 - Highlighting of hashes within the input and output when hovering over a hash. (higher effort)
+- Marking words to skip their translation using brackets [], leaving the input as the output. (low effort)
 
 ## Known Issues
 
